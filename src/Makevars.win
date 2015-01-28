@@ -1,0 +1,17 @@
+PKG_CPPFLAGS= -I../windows/libgit2-0.21.5/include
+PKG_LIBS= -L../windows/libgit2-0.21.5/lib${R_ARCH} -lgit2 -lssl -lssh2 -lcrypto -lhttp_parser -lgdi32 -lz -lws2_32 -lgdi32 -lcrypt32 -lwldap32 -lwinmm
+
+# Disable on CRAN:
+PKG_CFLAGS= -Wall -pedantic
+
+SOURCES = $(wildcard *.c)
+
+OBJECTS = $(SOURCES:.c=.o)
+
+all: clean winlibs $(OBJECTS)
+
+clean:
+	rm -f $(OBJECTS)
+
+winlibs:
+	"${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" "../tools/winlibs.R"

@@ -1,0 +1,12 @@
+Package: git
+Type: Package
+Title: A Native Git Client for R
+Version: 0.1
+Date: 2015-01-01
+Author: Jeroen Ooms
+Maintainer: Jeroen Ooms <jeroen.ooms@stat.ucla.edu>
+Description: A native git client based on bindings to libgit2 and some additional tools.
+License: MIT + file LICENSE
+SystemRequirements: libgit2-devel (rpm) or libgit2-dev (deb)
+URL: http://github.com/jeroenooms/git, https://libgit2.github.com/
+BugReports: http://github.com/jeroenooms/git/issues

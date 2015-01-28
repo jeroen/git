@@ -2,3 +2,12 @@ PKG_LIBS= -lgit2 -lssl -lcrypto
 
 # Disable on CRAN:
 PKG_CFLAGS= -Wall -pedantic
+
+SOURCES = $(wildcard *.c)
+
+OBJECTS = $(SOURCES:.c=.o)
+
+all: clean $(OBJECTS)
+
+clean:
+	rm -f $(OBJECTS)

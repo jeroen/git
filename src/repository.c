@@ -21,7 +21,11 @@ SEXP R_git_clone(SEXP url, SEXP path, SEXP branch){
 
   /* will this lead to mem leak? not sure */
   clone_opts.remote_callbacks.transfer_progress = check_interrupt;
+
+  /* dont verify certificate on windows */
+  #ifdef _WIN32
   clone_opts.ignore_cert_errors = 1;
+  #endif
 
   /* specify branch to checkout */
   if(branch != R_NilValue)

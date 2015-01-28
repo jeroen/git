@@ -20,7 +20,9 @@ SEXP R_git_clone(SEXP url, SEXP path, SEXP branch){
   git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
 
   /* will this lead to mem leak? not sure */
+  #if LIBGIT2_VER_MAJOR > 0 || LIBGIT2_VER_MINOR > 20
   clone_opts.remote_callbacks.transfer_progress = check_interrupt;
+  #endif
 
   /* dont verify certificate on windows */
   #ifdef _WIN32

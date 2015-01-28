@@ -11,14 +11,14 @@ git_clone <- function(url, path, branch = NULL){
 git_repository_info <- function(repo){
   stopifnot(is(repo, "git_repository"))
   out <- .Call(R_git_repository_info, repo)
-  names(out) <- c("workdir", "head_name", "head_shorthand", "branches")
+  names(out) <- c("workdir", "head_name", "head_shorthand", "references")
   return(out)
 }
 
 #' @export
 print.git_repository <- function(x, ...){
   out <- git_repository_info(x)
-  cat("git_repository:\n - Working dir:", out$workdir, "\n - Branches:", out$branches, "\n - Head name:", out$head_name, "\n - Head shorthand:", out$head_shorthand, "\n");
+  cat("git_repository:\n - Working dir:", out$workdir, "\n - Branches:", out$references, "\n - Head:", out$head_shorthand, "\n");
 }
 
 #' @useDynLib git R_git_signature_now

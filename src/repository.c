@@ -53,33 +53,19 @@ SEXP R_git_repository_info(SEXP ptr){
   git_reference *head = NULL;
   assert(git_repository_head(&head, repo));
 
-  git_branch_iterator *iter = NULL;
-  git_reference *ref = NULL;
-  git_branch_t type;
-
-  /* iterate once just to count */
-  int len = 0;
-  git_branch_iterator_new(&iter, repo, GIT_BRANCH_ALL);
-  while(GIT_ITEROVER != git_branch_next(&ref, &type, iter)) {
-    len++;
+  git_strarray ref_list;
+  assert(git_reference_list(&ref_list, repo));
+  SEXP refs = PROTECT(allocVector(STRSXP, ref_list.count));
+  for(int i = 0; i < ref_list.count; i++){
+    SET_STRING_ELT(refs, i, mkChar(ref_list.strings[i]));
   }
-  git_branch_iterator_free(iter);
-
-  /* iterate again */
-  SEXP branches = PROTECT(allocVector(STRSXP, len));
-  git_branch_iterator_new(&iter, repo, GIT_BRANCH_ALL);
-  for(int i = 0; GIT_ITEROVER != git_branch_next(&ref, &type, iter); i++) {
-    SET_STRING_ELT(branches, i, mkChar(git_reference_name(ref)));
-  }
-  git_branch_iterator_free(iter);
 
   SEXP list = PROTECT(allocVector(VECSXP, 4));
   SET_VECTOR_ELT(list, 0, mkString(git_repository_workdir(repo)));
   SET_VECTOR_ELT(list, 1, mkString(git_reference_name(head)));
   SET_VECTOR_ELT(list, 2, mkString(git_reference_shorthand(head)));
-  SET_VECTOR_ELT(list, 3, branches);
+  SET_VECTOR_ELT(list, 3, refs);
   UNPROTECT(2);
 
-  git_reference_free(ref);
   return list;
 }

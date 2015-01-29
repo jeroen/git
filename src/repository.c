@@ -94,7 +94,12 @@ SEXP R_git_checkout(SEXP ptr, SEXP ref, SEXP force){
     error("Object has been disposed.");
 
   /* checkout */
+  #if LIBGIT2_VER_MAJOR > 0 || LIBGIT2_VER_MINOR >= 21
   git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
+  #else
+  git_checkout_opts checkout_opts = GIT_CHECKOUT_OPTS_INIT;
+  #endif
+
   if(asLogical(force)){
     checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE;
   } else {

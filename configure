@@ -1,0 +1,38 @@
+# Specify your custom libgit2 build
+if [ "$LIBGIT2_DIR" ]; then
+  echo "PKG_CPPFLAGS= -I$LIBGIT2_DIR/include" > src/Makevars
+  echo "PKG_LIBS= -L$LIBGIT2_DIR/lib -lgit2 -lssl -lcrypto" >> src/Makevars
+  exit 0
+fi
+
+# Use default Makevars for system libs
+if [ -r "/usr/include/git2.h" ] || [ -r "/usr/local/include/git2.h" ]; then
+  exit 0;
+fi
+
+# Force static linking on OSX to support redistributable binary packages.
+if [ $(echo "$OSTYPE" | grep "darwin") ]; then
+
+  # Use system 'brew' if available
+  if [ $(command -v brew) ]; then
+    BREWDIR="$(brew --prefix)";
+  else
+    BREWDIR=$(pwd)/"homebrew"
+    mkdir -p $BREWDIR && curl -fsSL https://github.com/Homebrew/homebrew/tarball/master | tar xz --strip 1 -C $BREWDIR
+  fi
+
+  PKGDIR="$(echo $BREWDIR/Cellar/libgit2/*)";
+  if [ ! -r "$PKGDIR/include/git2.h" ]; then
+    echo "Brewing libgit2...";
+    HOMEBREW_CACHE="/tmp" $BREWDIR/bin/brew install ./tools/libgit2.rb;
+  fi
+  if [ -r "$PKGDIR/include/git2.h" ]; then
+    echo "Brewed libgit2 found in $PKGDIR";
+    echo "PKG_CPPFLAGS= -I$PKGDIR/include" > src/Makevars
+    echo "PKG_LIBS= -L$PKGDIR/lib -lgit2 -lssl -lcrypto" >> src/Makevars
+    exit 0
+  fi
+fi
+
+echo "File git2.h not found. Please install libgit2, e.g: libgit2-devel (rpm) or libgit2-dev (deb)"
+exit 1

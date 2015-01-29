@@ -105,7 +105,13 @@ SEXP R_git_checkout(SEXP ptr, SEXP ref, SEXP force){
   } else {
     checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
   }
+
+  #if LIBGIT2_VER_MAJOR > 0 || LIBGIT2_VER_MINOR >= 21
   assert(git_repository_set_head(repo, translateCharUTF8(asChar(ref)), NULL, NULL));
+  #else
+  assert(git_repository_set_head(repo, translateCharUTF8(asChar(ref))));
+  #endif
+
   assert(git_checkout_head(repo, &checkout_opts));
   return ref;
 }

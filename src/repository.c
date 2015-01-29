@@ -8,6 +8,14 @@ void fin_git_repository(SEXP ptr){
   R_ClearExternalPtr(ptr);
 }
 
+SEXP repo2ptr(git_repository *repo){
+  SEXP ptr = PROTECT(R_MakeExternalPtr(repo, R_NilValue, R_NilValue));
+  R_RegisterCFinalizerEx(ptr, fin_git_repository, 1);
+  setAttrib(ptr, R_ClassSymbol, mkString("git_repository"));
+  UNPROTECT(1);
+  return ptr;
+}
+
 int check_interrupt(){
   R_CheckUserInterrupt();
   return 0;
@@ -16,7 +24,7 @@ int check_interrupt(){
 SEXP R_git_clone(SEXP url, SEXP path, SEXP branch){
 
   /* init stuff */
-  git_repository *cloned_repo = NULL;
+  git_repository *repo = NULL;
   git_clone_options clone_opts = GIT_CLONE_OPTIONS_INIT;
 
   /* will this lead to mem leak? not sure */
@@ -34,18 +42,14 @@ SEXP R_git_clone(SEXP url, SEXP path, SEXP branch){
     clone_opts.checkout_branch = translateCharUTF8(asChar(branch));
 
   /* try to clone */
-  assert(git_clone(&cloned_repo, CHAR(asChar(url)), CHAR(asChar(path)), &clone_opts));
+  assert(git_clone(&repo, CHAR(asChar(url)), CHAR(asChar(path)), &clone_opts));
 
   /* check success */
-  if (!cloned_repo) {
+  if (!repo) {
     error("Failed to clone repository.");
   }
 
-  SEXP ptr = PROTECT(R_MakeExternalPtr(cloned_repo, R_NilValue, R_NilValue));
-  R_RegisterCFinalizerEx(ptr, fin_git_repository, 1);
-  setAttrib(ptr, R_ClassSymbol, mkString("git_repository"));
-  UNPROTECT(1);
-  return ptr;
+  return repo2ptr(repo);
 }
 
 SEXP R_git_repository_info(SEXP ptr){
@@ -70,4 +74,33 @@ SEXP R_git_repository_info(SEXP ptr){
   UNPROTECT(2);
 
   return list;
+}
+
+SEXP R_git_init(SEXP path, SEXP bare){
+  git_repository *repo = NULL;
+  assert(git_repository_init(&repo, translateCharUTF8(asChar(path)), asLogical(bare)));
+  return repo2ptr(repo);
+}
+
+SEXP R_git_repository_open(SEXP path){
+  git_repository *repo = NULL;
+  assert(git_repository_open(&repo, translateCharUTF8(asChar(path))));
+  return repo2ptr(repo);
+}
+
+SEXP R_git_checkout(SEXP ptr, SEXP ref, SEXP force){
+  git_repository *repo = R_ExternalPtrAddr(ptr);
+  if(!repo)
+    error("Object has been disposed.");
+
+  /* checkout */
+  git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
+  if(asLogical(force)){
+    checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE;
+  } else {
+    checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+  }
+  assert(git_repository_set_head(repo, translateCharUTF8(asChar(ref)), NULL, NULL));
+  assert(git_checkout_head(repo, &checkout_opts));
+  return ref;
 }

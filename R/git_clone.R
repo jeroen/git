@@ -4,7 +4,31 @@ git_clone <- function(url, path, branch = NULL){
   stopifnot(is.character(url))
   stopifnot(is.character(path))
   stopifnot(is.null(branch) || is.character(branch))
+  path <- normalizePath(path.expand(path), mustWork = FALSE)
   .Call(R_git_clone, url, path, branch)
+}
+
+#' @useDynLib git R_git_init
+#' @export
+git_init <- function(path, bare = FALSE){
+  stopifnot(is.character(path))
+  path <- normalizePath(path.expand(path), mustWork = FALSE)
+  .Call(R_git_init, path, bare)
+}
+
+#' @useDynLib git R_git_repository_open
+#' @export
+git_open <- function(path, bare = FALSE){
+  stopifnot(is.character(path))
+  path <- normalizePath(path.expand(path), mustWork = FALSE)
+  .Call(R_git_repository_open, path, bare)
+}
+
+#' @export
+#' @useDynLib git R_git_checkout
+git_checkout <- function(repo, ref, force = FALSE){
+  stopifnot(is(repo, "git_repository"))
+  .Call(R_git_checkout, repo, ref, force)
 }
 
 #' @useDynLib git R_git_repository_info

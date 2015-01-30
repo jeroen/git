@@ -112,8 +112,8 @@ SEXP R_git_checkout(SEXP ptr, SEXP ref, SEXP force){
     assert(git_reference_dwim(&newref, repo, refstring));
     refstring = git_reference_name(newref);
 
-    /* does not work: create local branch from remote */
     /*
+    //does not work: create local branch from remote
     if(git_reference_is_remote(newref)){
       Rprintf("is remote\n");
       git_commit *newcommit;

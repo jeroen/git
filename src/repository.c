@@ -103,15 +103,38 @@ SEXP R_git_checkout(SEXP ptr, SEXP ref, SEXP force){
   if(asLogical(force)){
     checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE;
   } else {
-    checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE;
+    checkout_opts.checkout_strategy = GIT_CHECKOUT_SAFE_CREATE;
+  }
+
+  const char *refstring = translateCharUTF8(asChar(ref));
+  if(!git_reference_is_valid_name(refstring)) {
+    git_reference *newref;
+    assert(git_reference_dwim(&newref, repo, refstring));
+    refstring = git_reference_name(newref);
+
+    /* does not work: create local branch from remote */
+    /*
+    if(git_reference_is_remote(newref)){
+      Rprintf("is remote\n");
+      git_commit *newcommit;
+      git_oid oid;
+      assert(git_reference_name_to_id(&oid, repo, git_reference_name(newref)));
+      assert(git_commit_lookup(&newcommit, repo, &oid));
+      assert(git_branch_create(NULL, repo, refstring, newcommit, 0, NULL, NULL));
+    } else {
+      Rprintf("is local\n");
+      refstring = git_reference_name(newref);
+    }
+    */
   }
 
   #if LIBGIT2_VER_MAJOR > 0 || LIBGIT2_VER_MINOR >= 21
-  assert(git_repository_set_head(repo, translateCharUTF8(asChar(ref)), NULL, NULL));
+  assert(git_repository_set_head(repo, refstring, NULL, NULL));
   #else
-  assert(git_repository_set_head(repo, translateCharUTF8(asChar(ref))));
+  assert(git_repository_set_head(repo, refstring));
   #endif
 
   assert(git_checkout_head(repo, &checkout_opts));
-  return ref;
+  assert(git_repository_set_namespace(repo, "foo"));
+  return mkString(refstring);
 }

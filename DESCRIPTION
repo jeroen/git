@@ -7,6 +7,6 @@ Author: Jeroen Ooms
 Maintainer: Jeroen Ooms <jeroen.ooms@stat.ucla.edu>
 Description: A native git client based on bindings to libgit2 and some additional tools.
 License: MIT + file LICENSE
-SystemRequirements: libgit2-devel (rpm) or libgit2-dev (deb)
+SystemRequirements: libgit2 (>= 0.19): libgit2-devel (rpm) or libgit2-dev (deb)
 URL: http://github.com/jeroenooms/git, https://libgit2.github.com/
 BugReports: http://github.com/jeroenooms/git/issues

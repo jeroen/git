@@ -5,7 +5,6 @@ class Libgit2 < Formula
   url "https://github.com/libgit2/libgit2/archive/v0.22.1.tar.gz"
   sha1 "20223ca392bb8f5d891cd9944eec62c6a6e21dd5"
 
-  keg_only "dont link global libs"
   head "https://github.com/libgit2/libgit2.git"
 
   depends_on "cmake" => :build

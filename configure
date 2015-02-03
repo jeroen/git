@@ -21,10 +21,11 @@ if [ $(echo "$OSTYPE" | grep "darwin") ]; then
     mkdir -p $BREWDIR && curl -fsSL https://github.com/Homebrew/homebrew/tarball/master | tar xz --strip 1 -C $BREWDIR
   fi
 
-  PKGDIR="$(echo $BREWDIR/Cellar/libgit2/*)";
+  PKGDIR=$(echo $BREWDIR/Cellar/libgit2/*);
   if [ ! -r "$PKGDIR/include/git2.h" ]; then
-    echo "Brewing libgit2...";
-    HOMEBREW_CACHE="/tmp" $BREWDIR/bin/brew install ./tools/libgit2.rb;
+    echo "Brewing libgit2 in $PKGDIR...";
+    HOMEBREW_CACHE="/tmp" $BREWDIR/bin/brew install libgit2;
+    PKGDIR=$(echo $BREWDIR/Cellar/libgit2/*);
   fi
   if [ -r "$PKGDIR/include/git2.h" ]; then
     echo "Brewed libgit2 found in $PKGDIR";
@@ -32,6 +33,7 @@ if [ $(echo "$OSTYPE" | grep "darwin") ]; then
     echo "PKG_LIBS= -L$PKGDIR/lib -lgit2 -lssl -lcrypto" >> src/Makevars
     exit 0
   fi
+  echo "File $PKGDIR/include/git2.h not found."
   echo "Homebrew of libgit2 failed :(";
   exit 1;
 fi

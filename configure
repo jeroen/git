@@ -24,7 +24,7 @@ if [ $(echo "$OSTYPE" | grep "darwin") ]; then
   PKGDIR=$(echo $BREWDIR/Cellar/libgit2/*);
   if [ ! -r "$PKGDIR/include/git2.h" ]; then
     echo "Brewing libgit2 in $PKGDIR...";
-    HOMEBREW_CACHE="/tmp" $BREWDIR/bin/brew install libgit2;
+    HOMEBREW_CACHE="/tmp" $BREWDIR/bin/brew install ./tools/libgit2.rb;
     PKGDIR=$(echo $BREWDIR/Cellar/libgit2/*);
   fi
   if [ -r "$PKGDIR/include/git2.h" ]; then

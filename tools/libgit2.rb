@@ -5,13 +5,6 @@ class Libgit2 < Formula
 
   head "https://github.com/libgit2/libgit2.git"
 
-  bottle do
-    cellar :any
-    sha1 "f38b591523f02a8d3310ec203f1ab7d2c6d825e4" => :yosemite
-    sha1 "ecfdcf794a06e2e501c2c95ca72cdc0f0a97c3ba" => :mavericks
-    sha1 "0daa906f4cf15f9e9de9637c41c0e600aae36c4b" => :mountain_lion
-  end
-
   option :universal
 
   depends_on "cmake" => :build
